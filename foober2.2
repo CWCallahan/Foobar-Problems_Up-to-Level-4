@@ -1,0 +1,37 @@
+def doTheThing(xs):
+    #ok so heres our aproach 
+    #we gonna do a greedy
+    #two pointers l and r
+    #if only 1 remains use the hightest positve
+    #if two or more remain compare the negative product to the pos product
+    #use the higher two lol duh omg lets goooo
+    #account for case when left two are negative or zero
+    #account for all zero case
+    xs.sort(reverse=True)
+    
+    r = xs[-1]*xs[-2]
+    l = xs[1]*xs[2]
+    #if both <= 0 thats a base case 
+    #if list empty thats a base case (what kind of empty tho run through the logicies)
+    #if r>l: #use r
+    #else use l 
+    
+    def getIt(ar):
+        nonlocal xs
+        if ar.len() == 0: return 1 #BASE CASE: When list empty YEEET
+        r = ar[-1]*ar[-2]
+        l = ar[0]*ar[1]
+        #BASE CASE: when the entire list is zero or negative we can't return 1
+        # probably doesnt need to be in this func
+        if ar.len()==xs.len() and ar[0]<=0 and r<=0: 
+            return xs[0]
+            #return the biggest posible product
+        elif ar[0]<=0 and r<=0: #BASE CASE: When sublist will only decrease product 
+            return 1
+        elif r>l: return    r*getIt(ar[:-2]) #use r
+        elif ar[0]>l:return ar[0]*getIt(ar[1:]) #use ar[1]
+        else: return        l*getit(ar[2:])#use l
+    
+    
+    return xs
+print (doTheThing([-2, -3, 4, -5]))

@@ -1,0 +1,67 @@
+import random
+class node:
+    def __init__(self,i,v): 
+        self.index=i
+        self.value=v
+        self.c = []
+        self.p = []
+    
+    def __str__(self):
+        return "i: {}, v: {}, c: {}, p: {}".format(self.index, self.value, self.c, self.p)
+    
+def solution(l):
+    #A surprise function that will help us latter
+    def div(n,k): 
+        if n == 0 or k == 0: return False
+        else: return (not(k%n))
+    
+    #Init Nodes
+    nodes = {}
+    for i in range(len(l)):
+        nodes[i]=node(i,l[i])
+        #print(nodes[i].c)
+    
+    #Init Tree
+    for i in range(len(l)-1):
+        for j in range(i+1,len(l)):
+            if div(l[i],l[j]):
+                nodes[j].p.append(l[i])
+                nodes[i].c.append(l[j])
+   
+    #Clean up nodes that could slow us down 
+    #NOPE this is O(N^2) dont do this unless you find a better way
+    #for i in range(len(l)):
+    #    if len(nodes[i].c)==0 or len(nodes[i].p)==0: 
+    #        del nodes[i] 
+    #    if i in nodes: print(nodes[i])
+    
+    #Sum up all valid combinations of p and c
+    t = int()
+    for i in range(len(l)):
+        if i in nodes:
+            for c in nodes[i].c:
+                for p in nodes[i].p:
+                    t+=1
+                    print("added: ",p,' ',l[i],' ',c)
+
+    return t
+  
+  
+    
+#Test cases
+print(solution([1,2,3,4,5,6]))
+print(solution([1,1]))
+print(solution([1,1,1]))
+print(solution([0,0,0,1,2,3,4,5,6,7,0,0,0,4,3,3,8,9,10]))
+print(solution([5,7,11]))
+print(solution([0,0,0,0,0,0,0]))
+a = []
+for i in range(1000):
+    a.append(i)
+for i in range(1000,2000):
+    a.append(random.randrange(0,999999))
+#print(solution(a))
+#print(a)
+
+#Two possibilities here, you need to break your code 
+# or you need to optomize your code

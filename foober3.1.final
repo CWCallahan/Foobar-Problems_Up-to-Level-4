@@ -1,0 +1,108 @@
+#One approach here is to examine obsticles from both sides
+# I chose to use two BFS implementations marking each obsticles
+# with the shortest path from either the origin or the end 
+# as I calculated the reverse distance I got the sum for 
+# each node that could be reached by both the origin and end
+# and just updated the sum, yielding the net minimum path
+def solution(map):
+    
+    #Node class to simplify the process, for both types of squares
+    class node():
+        obst     = False    #obsticle identifier flag
+        dist     = 0        #a nodes distance from origin
+        rDist    = 0        #a nodes distance from escape/ reverse distance
+        north    = True     #Flags to identify if a node has a neighbor in that dir
+        east     = True
+        south    = True
+        west     = True
+        removalPath = 400   #The path if the obsticle were removed
+
+    #Init our grid of nodes, inculding neighbor flags and obst flags
+    grid = [[node() for c in range(len(map[0]))]for r in range(len(map))]
+    for i in range(len(map)):
+        for j in range(len(map[i])):
+            grid[i][j].obst = map[i][j]
+            if i==0:                grid[i][j].north=False
+            if j==len(map[0])-1:    grid[i][j].east =False
+            if i==len(map)-1:       grid[i][j].south=False
+            if j==0:                grid[i][j].west =False
+
+    #Forward BFS
+    q = []
+    q.append((0,0))
+    grid[0][0].dist=1
+    
+    #Visit function for our BFS
+    # originaly used nonlocals here to keep code more compact
+    def visit(r,c,d):
+        n = grid[r][c]
+        if not(n.dist):
+            n.dist = d+1
+            if not(n.obst):
+                return True
+
+    #Meat and potatoes of a standard BFS
+    while len(q)>0:                    
+        pos = q.pop(0)
+        r = pos[0]
+        c = pos[1]
+        n = grid[r][c]
+        if n == grid[-1][-1]: break
+    
+        #visit n's neighbors
+        if n.north: 
+            if visit(r-1, c, n.dist): q.append((r-1, c))
+        if n.east:  
+            if visit(r, c+1, n.dist): q.append((r, c+1))
+        if n.south: 
+            if visit(r+1, c, n.dist): q.append((r+1, c))
+        if n.west:  
+            if visit(r, c-1, n.dist): q.append((r, c-1))
+            
+
+    #Reverse BFS
+    q = []
+    q.append((-1,-1))       #This time we start at the end
+    grid[-1][-1].rDist=1
+    minPath = 400           #set to start at max grid size for safety
+    
+    #Visit function for our reversed BFS, this time we compare obsticles
+    def visit(r,c,d):
+        n = grid[r][c]
+        if not(n.rDist):
+            n.rDist = d+1
+            if not(n.obst):
+                return True
+
+        #Heres where we calculate and assign the path if removed
+        if n.dist and n.rDist:
+                n.removalPath = n.rDist+n.dist-1
+    
+    #BFS from the escape 
+    while len(q)>0:                    
+        pos = q.pop(0)
+        r = pos[0]
+        c = pos[1]
+        n = grid[r][c]
+        if n == grid[0][0]: break
+    
+        #Visit n's neighbors and assign our minPath 
+        #This is where we save the buns!
+        if n.north: 
+            if visit(r-1, c, n.rDist): q.append((r-1, c))
+            if grid[r-1][c].removalPath<minPath: minPath = grid[r-1][c].removalPath
+        if n.east:  
+            if visit(r, c+1, n.rDist): q.append((r, c+1))
+            if grid[r][c+1].removalPath<minPath: minPath = grid[r][c+1].removalPath
+        if n.south: 
+            if visit(r+1, c, n.rDist): q.append((r+1, c))
+            if grid[r+1][c].removalPath<minPath: minPath = grid[r+1][c].removalPath
+        if n.west:  
+            if visit(r, c-1, n.rDist): q.append((r, c-1))
+            if grid[r][c-1].removalPath<minPath: minPath = grid[r][c-1].removalPath
+    
+    return(minPath)
+    
+print(solution([[0, 1, 1, 0], [0, 0, 0, 1], [1, 1, 0, 0], [1, 1, 1, 0]])) #7
+print(solution([[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]])) #11
+#a runtime or compile error

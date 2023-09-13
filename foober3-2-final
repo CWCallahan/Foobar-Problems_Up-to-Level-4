@@ -1,0 +1,43 @@
+#The naive approach to this problem ends up giving us a nightmarish exponential runtime
+# This is further complicated because traditional dynamic programing techniques like
+# memoization dont have a particulary helpful effect; appart from the first branch which mirrors 
+# the tree, the entire tree is made of unique pairs. However, by using the mathmatical patern of the tree
+# we can traverse directly up, often multiple generation at a time, in logarithmic time
+def solution(x,y):
+    #It will help us later to be able to easily refer to which number is highest or lowest
+    a = [int(x),int(y)]
+    a.sort()
+    
+    #Part one eliminate the impossiblities
+    # the tree formed from this problem is exactly all pairs of numbers that
+    # do not share a comon factor greater than one and we can use that to identify 
+    # an impossible pair. For legibility here's a funtion to help us do that. (modified Euclidean Algorithm)
+    def factorable(big,small):
+        r=1
+        while r>0:
+            r=big%small
+            big=small
+            small=r
+        if big>1: return True
+        else: return False
+    if factorable(a[0],a[1]): return "impossible"
+ 
+    #Part Two: Use math and recursion to quickly find the generation
+    #Doing a little math reveals our recursive relation for our tree
+    # Basically what were doing here is following the highest value 
+    # up the tree until its smaller than the previously larger value 
+    # using the power of math and reapeating the function util we hit the base case 
+    #n must always be smaller than k for this to work
+    def gen(n,k):
+        if n==1: return k-1
+        return (k-k%n)/n + gen(k%n,n)
+    return str(int(gen(a[0],a[1])))
+  
+  
+print(solution(1,2))
+print(solution(4,7))
+print(solution(0,4))
+print(solution(10^50,10^50+1))
+print(solution(200,4000000000000001))
+print(solution(2000,4000))
+print(solution(100000000000000000000000000000000000000000000000000,10000000000))
